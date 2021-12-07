@@ -62,9 +62,9 @@ class CallGraphProcessor(ProcessingBase):
                 iter_ns = utils.join_ns(name, utils.constants.ITER_METHOD)
                 next_ns = utils.join_ns(name, utils.constants.NEXT_METHOD)
                 if self.def_manager.get(iter_ns):
-                    self.call_graph.add_edge(self.current_method, iter_ns)
+                    self.call_graph.add_edge(self.current_method, iter_ns, node.lineno)
                 if self.def_manager.get(next_ns):
-                    self.call_graph.add_edge(self.current_method, next_ns)
+                    self.call_graph.add_edge(self.current_method, next_ns, node.lineno)
 
         super().visit_For(node)
 
@@ -91,9 +91,9 @@ class CallGraphProcessor(ProcessingBase):
                 if pointer_def.get_type() == utils.constants.CLS_DEF:
                     init_ns = self.find_cls_fun_ns(name, utils.constants.CLS_INIT)
                     for ns in init_ns:
-                        self.call_graph.add_edge(self.current_method, ns)
+                        self.call_graph.add_edge(self.current_method, ns, node.lineno)
                 if pointer_def.get_type() == utils.constants.EXT_DEF:
-                    self.call_graph.add_edge(self.current_method, name)
+                    self.call_graph.add_edge(self.current_method, name, node.lineno)
 
     def visit_AsyncFunctionDef(self, node):
         self.visit_FunctionDef(node)
@@ -107,7 +107,7 @@ class CallGraphProcessor(ProcessingBase):
                     continue
                 names = self.closured.get(d.get_ns(), [])
                 for name in names:
-                    self.call_graph.add_edge(self.current_method, name)
+                    self.call_graph.add_edge(self.current_method, name, node.lineno)
 
         self.call_graph.add_node(utils.join_ns(self.current_ns, node.name), self.modname)
         super().visit_FunctionDef(node)
@@ -116,7 +116,7 @@ class CallGraphProcessor(ProcessingBase):
         def create_ext_edge(name, ext_modname):
             self.add_ext_mod_node(name)
             self.call_graph.add_node(name, ext_modname)
-            self.call_graph.add_edge(self.current_method, name)
+            self.call_graph.add_edge(self.current_method, name, node.lineno)
 
         # First visit the child function so that on the case of
         #       func()()()
@@ -152,7 +152,7 @@ class CallGraphProcessor(ProcessingBase):
                     ext_modname = pointer.split(".")[0]
                     create_ext_edge(pointer, ext_modname)
                     continue
-                self.call_graph.add_edge(self.current_method, pointer)
+                self.call_graph.add_edge(self.current_method, pointer, node.lineno)
 
                 # TODO: This doesn't work and leads to calls from the decorators
                 #    themselves to the function, creating edges to the first decorator
@@ -166,7 +166,7 @@ class CallGraphProcessor(ProcessingBase):
                 init_ns = self.find_cls_fun_ns(pointer, utils.constants.CLS_INIT)
 
                 for ns in init_ns:
-                    self.call_graph.add_edge(self.current_method, ns)
+                    self.call_graph.add_edge(self.current_method, ns, node.lineno)
 
     def analyze_submodules(self):
         super().analyze_submodules(CallGraphProcessor, self.import_manager,

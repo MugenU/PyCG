@@ -36,10 +36,10 @@ class CallGraph(object):
         if name in self.cg and not self.modnames[name]:
             self.modnames[name] = modname
 
-    def add_edge(self, src, dest):
+    def add_edge(self, src, dest, lineno):
         self.add_node(src)
         self.add_node(dest)
-        self.cg[src].add(dest)
+        self.cg[src].add((lineno, dest))
 
     def get(self):
         return self.cg
