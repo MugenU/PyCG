@@ -18,6 +18,8 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+import copy
+
 class ClassManager:
     def __init__(self):
         self.names = {}
@@ -42,11 +44,13 @@ class ClassNode:
         self.mro = [ns]
 
     def add_parent(self, parent):
+        new_mro = copy.deepcopy(self.mro)
         if isinstance(parent, str):
-            self.mro.append(parent)
+            new_mro.append(parent)
         elif isinstance(parent, list):
             for item in parent:
-                self.mro.append(item)
+                new_mro.append(item)
+        self.mro = new_mro
         self.fix_mro()
 
     def fix_mro(self):
