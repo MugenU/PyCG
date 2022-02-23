@@ -186,8 +186,8 @@ class PreProcessor(ProcessingBase):
                 add_external_def(src_name, tgt_name)
                 continue
             # only analyze modules under the current directory
-            rel_fname = fname[fname.index('lib') + 3:]
-            if self.import_manager.get_mod_dir() in rel_fname:
+           
+            if 'ecosystem' in fname and self.import_manager.get_mod_dir() in fname:
                 if not imported_name in self.modules_analyzed:
                     self.analyze_submodule(imported_name)
                 handle_scopes(import_item.name, tgt_name, imported_name)
@@ -198,10 +198,9 @@ class PreProcessor(ProcessingBase):
         for modname in self.import_manager.get_imports(self.modname):
             fname = self.import_manager.get_filepath(modname)
 
-            if not fname:
+            if not fname or 'ecosystem' not in fname:
                 continue
             # only analyze modules under the current directory
-            rel_fname = fname[fname.index('lib') + 3:]
             if self.import_manager.get_mod_dir() in rel_fname and \
                 not modname in self.modules_analyzed:
                     self.analyze_submodule(modname)
