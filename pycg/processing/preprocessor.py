@@ -201,7 +201,7 @@ class PreProcessor(ProcessingBase):
             if not fname or 'ecosystem' not in fname:
                 continue
             # only analyze modules under the current directory
-            if self.import_manager.get_mod_dir() in rel_fname and \
+            if self.import_manager.get_mod_dir() in fname and \
                 not modname in self.modules_analyzed:
                     self.analyze_submodule(modname)
 
